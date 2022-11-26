@@ -28,6 +28,7 @@ async function run() {
         const categoriesCollection = client.db('shareWear').collection('categories');
         const productsCollection = client.db('shareWear').collection('products');
         const bookingsCollection = client.db('shareWear').collection('bookings');
+        const usersCollection = client.db('shareWear').collection('users');
 
         // get categories api
         app.get('/categories', async (req, res) => {
@@ -50,6 +51,23 @@ async function run() {
             const booking = req.body;
             const result = await bookingsCollection.insertOne(booking);
             console.log('yes!! booked')
+            res.send(result);
+        });
+
+        // insert user api        
+        app.post('/users', async (req, res) => {
+            const userInfo = req.body;
+            console.log(userInfo);
+
+            //checking if user with same email address already inserted
+            const query = { email: userInfo.email }
+            const alreadyBooked = await usersCollection.find(query).toArray();
+            if (alreadyBooked.length) {
+                const message = `Already registered with email ${userInfo.email}`
+                return res.send({ acknowledged: false, message })
+            }
+
+            const result = await usersCollection.insertOne(userInfo);
             res.send(result);
         });
 
