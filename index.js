@@ -27,6 +27,7 @@ async function run() {
     try {
         const categoriesCollection = client.db('shareWear').collection('categories');
         const productsCollection = client.db('shareWear').collection('products');
+        const bookingsCollection = client.db('shareWear').collection('bookings');
 
         // get categories api
         app.get('/categories', async (req, res) => {
@@ -39,10 +40,17 @@ async function run() {
         // get products api
         app.get('/category/:id', async (req, res) => {
             const id = req.params.id;
-            console.log('api kam kortese', id);
             const query = { categoryId: id };
             const products = await productsCollection.find(query).toArray();
             res.send(products)
+        });
+
+        // book a product api
+        app.post('/bookings', async (req, res) => {
+            const booking = req.body;
+            const result = await bookingsCollection.insertOne(booking);
+            console.log('yes!! booked')
+            res.send(result);
         });
 
     }
