@@ -108,13 +108,27 @@ async function run() {
             res.send(doctors);
         })
 
-        //delete product
+        //delete product api
         app.delete('/product/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) };
             const result = await productsCollection.deleteOne(filter);
             res.send(result);
         })
+
+        // update product for advertisement
+        app.put('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true };
+            const updatedProduct = {
+                $set: {
+                    advertisement: 'yes'
+                }
+            }
+            const result = await productsCollection.updateOne(filter, updatedProduct, options);
+            res.send(result);
+        });
 
     }
     finally {
