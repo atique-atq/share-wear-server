@@ -100,6 +100,14 @@ async function run() {
             res.send(result);
         });
 
+        //products for specific user api
+        app.get('/products', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: req.query.email };
+            const doctors = await productsCollection.find(query).toArray();
+            res.send(doctors);
+        })
+
     }
     finally {
 
