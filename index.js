@@ -50,14 +50,13 @@ async function run() {
         app.post('/bookings', async (req, res) => {
             const booking = req.body;
             const result = await bookingsCollection.insertOne(booking);
-            console.log('yes!! booked')
+            console.log('yes!! booked');
             res.send(result);
         });
 
         // insert user api        
         app.post('/users', async (req, res) => {
             const userInfo = req.body;
-            console.log(userInfo);
 
             //checking if user with same email address already inserted
             const query = { email: userInfo.email }
@@ -128,6 +127,13 @@ async function run() {
             }
             const result = await productsCollection.updateOne(filter, updatedProduct, options);
             res.send(result);
+        });
+
+        //get advertised products api
+        app.get('/advertisement/products', async (req, res) => {
+            const query = { advertisement: 'yes' };
+            const products = await productsCollection.find(query).toArray();
+            res.send(products)
         });
 
     }
