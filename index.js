@@ -136,6 +136,20 @@ async function run() {
             res.send(products)
         });
 
+        //get all sellers from admin
+        app.get('/users/sellers', async (req, res) => {
+            const query = { role: 'seller' };
+            const sellers = await usersCollection.find(query).toArray();
+            res.send(sellers)
+        });
+
+        //get all buyers from admin
+        app.get('/users/buyers', async (req, res) => {
+            const query = { role: 'buyer' };
+            const buyers = await usersCollection.find(query).toArray();
+            res.send(buyers)
+        });
+
     }
     finally {
 
