@@ -146,6 +146,13 @@ async function run() {
             res.send(sellers)
         });
 
+        //get all buyers from admin
+        app.get('/users/buyers', async (req, res) => {
+            const query = { role: 'buyer' };
+            const buyers = await usersCollection.find(query).toArray();
+            res.send(buyers)
+        });
+
         //verify seller
         app.put('/seller/verify', async (req, res) => {
             const id = req.query.id;
@@ -180,6 +187,15 @@ async function run() {
             const buyers = await usersCollection.find(query).toArray();
             res.send(buyers)
         });
+
+        //delete seller
+        app.delete('/seller/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const result = await usersCollection.deleteOne(filter);
+            res.send(result);
+        })
+
 
     }
     finally {
