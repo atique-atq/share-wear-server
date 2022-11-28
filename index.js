@@ -196,6 +196,15 @@ async function run() {
             res.send(result);
         })
 
+        //get bookings
+        app.get('/bookings', async (req, res) => {
+            const email = req.query.email;
+            console.log('In Booking Table. email: ', email);
+            const query = { userEmail: email };
+            const bookings = await bookingsCollection.find(query).toArray();
+            res.send(bookings);
+        });
+
 
     }
     finally {
