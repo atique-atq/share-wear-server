@@ -89,7 +89,10 @@ async function run() {
             const email = req.params.email;
             const query = { email }
             const user = await usersCollection.findOne(query);
-            res.send({ isSeller: user?.role === 'seller' });
+            res.send({
+                isSeller: user?.role === 'seller',
+                isVerified: user?.verification === 'verified'
+            });
         })
 
         //insert product api
@@ -141,6 +144,34 @@ async function run() {
             const query = { role: 'seller' };
             const sellers = await usersCollection.find(query).toArray();
             res.send(sellers)
+        });
+
+        //verify seller
+        app.put('/seller/verify', async (req, res) => {
+            const id = req.query.id;
+            const email = req.query.email;
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true };
+            const verifiedSeller = {
+                $set: {
+                    verification: 'verified'
+                }
+            }
+            const result = await usersCollection.updateOne(filter, verifiedSeller, options);
+
+            //update product table for verifying 
+            const queryForProducts = { email: email }
+            const anyProductForEmail = await productsCollection.find(queryForProducts).toArray();
+            if (anyProductForEmail?.length > 0) {
+                const verifiedProductsDoc = {
+                    $set: {
+                        verification: 'verified'
+                    }
+                }
+                await productsCollection.updateMany(queryForProducts, verifiedProductsDoc, options);
+            }
+
+            res.send(result);
         });
 
         //get all buyers from admin
