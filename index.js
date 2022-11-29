@@ -30,6 +30,7 @@ async function run() {
         const productsCollection = client.db('shareWear').collection('products');
         const bookingsCollection = client.db('shareWear').collection('bookings');
         const usersCollection = client.db('shareWear').collection('users');
+        const paymentsCollection = client.db('shareWear').collection('payments');
 
         // get categories api
         app.get('/categories', async (req, res) => {
@@ -216,9 +217,7 @@ async function run() {
         //create payment intend
         app.post('/create-payment-intent', async (req, res) => {
             const booking = req.body;
-            console.log('**', booking);
             const price = booking.price;
-            console.log('----', price);
             const amount = price * 100;
 
             const paymentIntent = await stripe.paymentIntents.create({
@@ -232,6 +231,34 @@ async function run() {
                 clientSecret: paymentIntent.client_secret,
             });
         });
+
+        //payment api
+        app.post('/payments', async (req, res) => {
+            const payment = req.body;
+            const result = await paymentsCollection.insertOne(payment);
+            //update boooking table
+            const id = payment.bookingId
+            const filter = { _id: ObjectId(id) }
+            const updatedDoc = {
+                $set: {
+                    paid: true,
+                    transactionId: payment.transactionId
+                }
+            }
+            const updatedResult = await bookingsCollection.updateOne(filter, updatedDoc);
+            //update product table
+            const productId = payment.productId;
+            const productFilter = { _id: ObjectId(productId) };
+            // const options = { upsert: true };
+            const updatedDocForProduct = {
+                $set: {
+                    status: "sold",
+                }
+            }
+            const productResult = await productsCollection.updateOne(productFilter, updatedDocForProduct);
+            console.log('in the payment section', productResult);
+            res.send(result);
+        })
 
 
     }
