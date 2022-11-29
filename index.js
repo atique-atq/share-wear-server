@@ -6,6 +6,7 @@ require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 5000;
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // middle wares
 app.use(cors());
@@ -199,10 +200,37 @@ async function run() {
         //get bookings
         app.get('/bookings', async (req, res) => {
             const email = req.query.email;
-            console.log('In Booking Table. email: ', email);
             const query = { userEmail: email };
             const bookings = await bookingsCollection.find(query).toArray();
             res.send(bookings);
+        });
+
+        //get specific bookings
+        app.get('/bookings/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const booking = await bookingsCollection.findOne(query);
+            res.send(booking);
+        })
+
+        //create payment intend
+        app.post('/create-payment-intent', async (req, res) => {
+            const booking = req.body;
+            console.log('**', booking);
+            const price = booking.price;
+            console.log('----', price);
+            const amount = price * 100;
+
+            const paymentIntent = await stripe.paymentIntents.create({
+                currency: 'usd',
+                amount: amount,
+                "payment_method_types": [
+                    "card"
+                ]
+            });
+            res.send({
+                clientSecret: paymentIntent.client_secret,
+            });
         });
 
 
