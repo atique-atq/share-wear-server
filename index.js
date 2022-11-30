@@ -148,7 +148,7 @@ async function run() {
             const options = { upsert: true };
             const updatedProduct = {
                 $set: {
-                    reported: 'yes'
+                    reported: true
                 }
             }
             const result = await productsCollection.updateOne(filter, updatedProduct, options);
@@ -273,6 +273,13 @@ async function run() {
             console.log('in the payment section', productResult);
             res.send(result);
         })
+
+        //get all sellers from admin
+        app.get('/products/reported', async (req, res) => {
+            const query = { reported: true };
+            const reportedItems = await productsCollection.find(query).toArray();
+            res.send(reportedItems)
+        });
 
 
     }
