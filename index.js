@@ -136,7 +136,7 @@ async function run() {
 
         //get advertised products api
         app.get('/advertisement/products', async (req, res) => {
-            const query = { advertisement: 'yes' };
+            const query = { advertisement: 'yes', status: 'available' };
             const products = await productsCollection.find(query).toArray();
             res.send(products)
         });
