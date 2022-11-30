@@ -141,6 +141,20 @@ async function run() {
             res.send(products)
         });
 
+        // update product for report
+        app.put('/report/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true };
+            const updatedProduct = {
+                $set: {
+                    reported: 'yes'
+                }
+            }
+            const result = await productsCollection.updateOne(filter, updatedProduct, options);
+            res.send(result);
+        });
+
         //get all sellers from admin
         app.get('/users/sellers', async (req, res) => {
             const query = { role: 'seller' };
